@@ -1,8 +1,12 @@
 ---
-- name: Ping all servers
+- name: Ping all servers and report status
   hosts: all
-  gather_facts: false
+  gather_facts: no
 
   tasks:
-    - name: Ping each host
+    - name: Ping the host
       ansible.builtin.ping:
+
+    - name: Show successful ping response
+      debug:
+        msg: "✅ Host {{ inventory_hostname }} is reachable."

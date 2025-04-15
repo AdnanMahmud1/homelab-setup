@@ -1,0 +1,24 @@
+---
+- hosts: all
+  become: true
+  gather_facts: yes
+
+  tasks:
+    - name: Update APT cache
+      apt:
+        update_cache: yes
+
+    - name: Check for available upgrades
+      shell: |
+        apt list --upgradable 2>/dev/null | grep -v "Listing..." | wc -l
+      register: upgrade_count
+      changed_when: false
+
+    - name: Show number of available upgrades
+      debug:
+        msg: "Number of packages to upgrade: {{ upgrade_count.stdout }}"
+
+    - name: Upgrade packages if needed
+      apt:
+        upgrade: dist
+      when: upgrade_count.stdout|int > 0

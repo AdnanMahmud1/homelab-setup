@@ -1,6 +1,7 @@
 ---
 - name: Check if system reboot is required
-  hosts: "{{ my_hosts | d([]) }}"
+  # hosts: "{{ my_hosts | d([]) }}"
+  hosts: all
   become: true
 
   tasks:

@@ -1,7 +1,7 @@
 ---
 - name: Check disk space
-  hosts: "{{ my_hosts | d([]) }}"
-
+  # hosts: "{{ my_hosts | d([]) }}"
+  hosts: all
   tasks:
     - name: Check disk space available
       ansible.builtin.shell:

@@ -1,0 +1,59 @@
+---
+networks:
+  frontend:
+    external: true
+
+volumes:
+  semaphore-mysql:
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: semaphore-mysql
+    hostname: mysql
+    networks:
+      - frontend
+    volumes:
+      - semaphore-mysql:/var/lib/mysql
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=semaphore
+      - MYSQL_USER=semaphore
+      - MYSQL_PASSWORD=PAWWSSRRDD
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  semaphore:
+    image: semaphoreui/semaphore:v2.13.13
+    container_name: ansiblesemaphore
+    user: "${UID}:${GID}"
+    ports:
+      - 3000:3000
+    environment:
+      - SEMAPHORE_DB_USER=semaphore
+      - SEMAPHORE_DB_PASS=PAWWSSRRDD
+      - SEMAPHORE_DB_HOST=mysql
+      - SEMAPHORE_DB_PORT=3306
+      - SEMAPHORE_DB_DIALECT=mysql
+      - SEMAPHORE_DB=semaphore
+      - SEMAPHORE_PLAYBOOK_PATH=/tmp/semaphore/
+      - SEMAPHORE_ADMIN_PASSWORD=seca$$#%tya52@dd1
+      - SEMAPHORE_ADMIN_NAME=admin
+      - SEMAPHORE_ADMIN_EMAIL=admin@localhost
+      - SEMAPHORE_ADMIN=admin
+      - SEMAPHORE_ACCESS_KEY_ENCRYPTION= // key needed here
+      - ANSIBLE_HOST_KEY_CHECKING=false
+    volumes:
+      - ./inventory/:/inventory:ro
+      - ./authorized-keys/:/authorized-keys:ro
+      - ./config/:/etc/semaphore:rw
+    networks:
+      - frontend
+    restart: on-failure
+    depends_on:
+      mysql:
+        condition: service_healthy

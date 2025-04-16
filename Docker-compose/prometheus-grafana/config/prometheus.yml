@@ -1,0 +1,31 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: "prometheus"
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # Node Exporter job
+  - job_name: "node_exporter"
+    static_configs:
+      - targets:
+          - "node_exporter:9100"
+
+  - job_name: "VM_1_metrics"
+    scheme: https
+    static_configs:
+      - targets: ["example.com"]
+    metrics_path: "/ne/metrics"
+
+  # cAdvisor job
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["cadvisor:8080"]
+
+  - job_name: "traefik"
+    scrape_interval: 10s
+    static_configs:
+      - targets: ["traefik:8082"]

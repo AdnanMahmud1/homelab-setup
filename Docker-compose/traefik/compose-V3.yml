@@ -1,0 +1,35 @@
+---
+
+services:
+  traefik:
+    image: "traefik:v3.3.4"
+    command:
+      - --log.level=INFO
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --providers.docker
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --providers.docker.network=traefik-public
+      - --api
+      #- --api.dashboard=true  # Enable Traefik dashboard
+      - --metrics.prometheus=true # Enable Prometheus metrics
+      - --metrics.prometheus.entryPoint=metrics # Set metrics entry point
+      - --entryPoints.metrics.address=:8082 # Expose metrics on port 8082
+      - --certificatesresolvers.leresolver.acme.caserver=https://acme-v02.api.letsencrypt.org/directory
+      - --certificatesresolvers.leresolver.acme.email=your@mail.com  // update mail
+      - --certificatesresolvers.leresolver.acme.storage=/le/acme.json
+      - --certificatesresolvers.leresolver.acme.tlschallenge=true
+    ports:
+      - "81:80"
+      - "443:443"
+      - "8082:8082" # Expose Prometheus metrics
+    networks:
+      - frontend
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/mnt/data/traefik/acme.json:/le/acme.json"
+
+networks:
+  frontend:
+    external: true

@@ -19,7 +19,7 @@ services:
       - MYSQL_RANDOM_ROOT_PASSWORD=yes
       - MYSQL_DATABASE=semaphore
       - MYSQL_USER=semaphore
-      - MYSQL_PASSWORD=PAWWSSRRDD
+      - MYSQL_PASSWORD=PAWWSSDDER
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
@@ -32,10 +32,10 @@ services:
     container_name: ansiblesemaphore
     user: "${UID}:${GID}"
     ports:
-      - 3000:3000
+      - 80:3000
     environment:
       - SEMAPHORE_DB_USER=semaphore
-      - SEMAPHORE_DB_PASS=PAWWSSRRDD
+      - SEMAPHORE_DB_PASS=PAWWSSDDER
       - SEMAPHORE_DB_HOST=mysql
       - SEMAPHORE_DB_PORT=3306
       - SEMAPHORE_DB_DIALECT=mysql
@@ -47,6 +47,14 @@ services:
       - SEMAPHORE_ADMIN=admin
       - SEMAPHORE_ACCESS_KEY_ENCRYPTION= // key needed here
       - ANSIBLE_HOST_KEY_CHECKING=false
+
+    labels:
+      traefik.enable: "true"
+      traefik.http.services.nginx.loadbalancer.server.port: "3000"
+      traefik.http.routers.nginx.rule: "Host(`example.com`)"
+      traefik.http.routers.nginx.entrypoints: "websecure"
+      traefik.http.routers.nginx.tls: "true"
+      traefik.http.routers.nginx.tls.certresolver: "leresolver"
     volumes:
       - ./inventory/:/inventory:ro
       - ./authorized-keys/:/authorized-keys:ro
